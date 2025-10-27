@@ -1,18 +1,20 @@
 steps:
-  - name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "build",
-        "-t",
-        "us-east4-docker.pkg.dev/granja-don-rafa-dev/curso-ms-nest/orders-sms",
-        "-f",
-        "dockerfile.prod",
-        "--platform=linux/amd64",
-        ".",
-      ]
-  - name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "push",
-        "us-east4-docker.pkg.dev/granja-don-rafa-dev/curso-ms-nest/orders-sms",
-      ]
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+    - -c
+    - |
+      docker build -t us-east4-docker.pkg.dev/granja-don-rafa-dev/curso-ms-nest/orders-ms -f dockerfile.prod --platform=linux/amd64 --build-arg ORDERS_DATABASE_URL=$$DATABASE_URL .
+  secretEnv: ['DATABASE_URL']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    [
+      'push',
+      'us-east4-docker.pkg.dev/granja-don-rafa-dev/curso-ms-nest/orders-ms',
+    ]
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/34894223820/secrets/oders_database_url/versions/1
+    env: 'DATABASE_URL'
